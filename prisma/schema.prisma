@@ -1,0 +1,527 @@
+// ---------------------------------------------------------------------------
+// KinLouaziss Web — schéma Prisma (PostgreSQL / Supabase)
+//
+// Reprend le modèle métier de l'application desktop (projetKenis) en
+// l'adaptant au multi-utilisateur en ligne. Les montants sont stockés en
+// Float pour rester proches de l'application d'origine (REAL / SQLite).
+// ---------------------------------------------------------------------------
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Utilisateurs, rôles et permissions
+// ---------------------------------------------------------------------------
+
+/// Profil applicatif associé à un compte Supabase Auth (`auth.users.id`).
+model AppUser {
+  id               String    @id
+  username         String    @unique
+  fullName         String    @map("full_name")
+  email            String?
+  phone            String?
+  roleCode         String    @map("role_code")
+  isActive         Boolean   @default(true) @map("is_active")
+  mustChangePassword Boolean @default(false) @map("must_change_password")
+  lastLoginAt      DateTime? @map("last_login_at")
+  secretQuestion   String?   @map("secret_question")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+  deletedAt        DateTime? @map("deleted_at")
+
+  role Role @relation(fields: [roleCode], references: [code])
+
+  @@map("users")
+}
+
+model Role {
+  code        String   @id
+  label       String
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  users           AppUser[]
+  rolePermissions RolePermission[]
+
+  @@map("roles")
+}
+
+model Permission {
+  code        String   @id
+  label       String
+  category    String
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  rolePermissions RolePermission[]
+
+  @@map("permissions")
+}
+
+model RolePermission {
+  roleCode       String @map("role_code")
+  permissionCode String @map("permission_code")
+
+  role       Role       @relation(fields: [roleCode], references: [code], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionCode], references: [code], onDelete: Cascade)
+
+  @@id([roleCode, permissionCode])
+  @@map("role_permissions")
+}
+
+// ---------------------------------------------------------------------------
+// Thérapeutes et patients
+// ---------------------------------------------------------------------------
+
+model Therapist {
+  id                 Int       @id @default(autoincrement())
+  firstName          String    @map("first_name")
+  lastName           String    @map("last_name")
+  phone              String?
+  email              String?
+  specialty          String?
+  professionalNumber String?   @map("professional_number")
+  status             String    @default("active")
+  notes              String?
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+  deletedAt          DateTime? @map("deleted_at")
+
+  appointments Appointment[]
+  sessions     Session[]
+
+  @@map("therapists")
+}
+
+model Patient {
+  id                 Int       @id @default(autoincrement())
+  fileNumber         String    @unique @map("file_number")
+  firstName          String    @map("first_name")
+  lastName           String    @map("last_name")
+  gender             String    @default("unspecified")
+  birthDate          DateTime? @map("birth_date") @db.Date
+  phone              String?
+  email              String?
+  address            String?
+  city               String?
+  occupation         String?
+  referringDoctor    String?   @map("referring_doctor")
+  referringDoctorPhone String? @map("referring_doctor_phone")
+  registeredAt       DateTime  @default(now()) @map("registered_at")
+  status             String    @default("active")
+  notes              String?
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+  deletedAt          DateTime? @map("deleted_at")
+
+  medicalRecord    MedicalRecord?
+  medicalHistory   MedicalHistory?
+  assessments      Assessment[]
+  treatmentGoals   TreatmentGoal[]
+  treatmentPlans   TreatmentPlan[]
+  appointments     Appointment[]
+  sessions         Session[]
+  sessionProgress  SessionProgress[]
+  payments         Payment[]
+  invoices         Invoice[]
+  quotes           Quote[]
+  documents        PatientDocument[]
+
+  @@index([lastName, firstName])
+  @@index([phone])
+  @@index([deletedAt])
+  @@map("patients")
+}
+
+// ---------------------------------------------------------------------------
+// Dossier médical
+// ---------------------------------------------------------------------------
+
+model MedicalRecord {
+  id            Int      @id @default(autoincrement())
+  patientId     Int      @unique @map("patient_id")
+  chiefComplaint String? @map("chief_complaint")
+  diagnosis     String?
+  finalEvaluation String? @map("final_evaluation")
+  notes         String?
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  patient Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@map("medical_records")
+}
+
+model MedicalHistory {
+  id                   Int      @id @default(autoincrement())
+  patientId            Int      @unique @map("patient_id")
+  diseaseHistory       String?  @map("disease_history")
+  pastMedicalHistory   String?  @map("past_medical_history")
+  surgicalHistory      String?  @map("surgical_history")
+  injuries             String?
+  chronicDiseases      String?  @map("chronic_diseases")
+  medications          String?
+  allergies            String?
+  observations         String?
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+
+  patient Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@map("medical_history")
+}
+
+model Assessment {
+  id            Int      @id @default(autoincrement())
+  patientId     Int      @map("patient_id")
+  assessedAt    DateTime @map("assessed_at")
+  painLevel     Int?     @map("pain_level")
+  painLocation  String?  @map("pain_location")
+  painScale     String?  @map("pain_scale")
+  rangeOfMotion String?  @map("range_of_motion")
+  muscleStrength String? @map("muscle_strength")
+  balance       String?
+  gait          String?
+  mobility      String?
+  motorFunction String?  @map("motor_function")
+  posture       String?
+  observations  String?
+  customFields  String?  @map("custom_fields")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  patient Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@index([patientId])
+  @@map("assessments")
+}
+
+model TreatmentGoal {
+  id              Int      @id @default(autoincrement())
+  patientId       Int      @map("patient_id")
+  mainGoal        String?  @map("main_goal")
+  shortTermGoals  String?  @map("short_term_goals")
+  longTermGoals   String?  @map("long_term_goals")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  patient Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@map("treatment_goals")
+}
+
+model TreatmentPlan {
+  id              Int      @id @default(autoincrement())
+  patientId       Int      @map("patient_id")
+  treatmentType   String?  @map("treatment_type")
+  plannedSessions Int?     @map("planned_sessions")
+  sessionDuration Int?     @map("session_duration")
+  frequency       String?
+  techniques      String?
+  exercises       String?
+  goals           String?
+  observations    String?
+  status          String   @default("active")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  patient Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@map("treatment_plans")
+}
+
+model PatientDocument {
+  id        Int       @id @default(autoincrement())
+  patientId Int       @map("patient_id")
+  title     String
+  category  String    @default("other")
+  fileName  String    @map("file_name")
+  filePath  String    @map("file_path")
+  fileUrl   String?   @map("file_url")
+  mimeType  String?   @map("mime_type")
+  fileSize  Int       @default(0) @map("file_size")
+  notes     String?
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  patient Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@index([patientId])
+  @@index([deletedAt])
+  @@map("patient_documents")
+}
+
+// ---------------------------------------------------------------------------
+// Agenda et séances
+// ---------------------------------------------------------------------------
+
+model Appointment {
+  id          Int       @id @default(autoincrement())
+  patientId   Int       @map("patient_id")
+  therapistId Int?      @map("therapist_id")
+  startsAt    DateTime  @map("starts_at")
+  endsAt      DateTime  @map("ends_at")
+  sessionType String?   @map("session_type")
+  status      String    @default("planned")
+  notes       String?
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  patient   Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  therapist Therapist? @relation(fields: [therapistId], references: [id], onDelete: SetNull)
+  sessions  Session[]
+
+  @@index([startsAt])
+  @@index([patientId])
+  @@index([therapistId])
+  @@map("appointments")
+}
+
+model Session {
+  id            Int       @id @default(autoincrement())
+  patientId     Int       @map("patient_id")
+  therapistId   Int?      @map("therapist_id")
+  appointmentId Int?      @map("appointment_id")
+  sessionDate   DateTime  @map("session_date")
+  startTime     String?   @map("start_time")
+  endTime       String?   @map("end_time")
+  duration      Int?
+  sessionType   String?   @map("session_type")
+  reason        String?
+  treatmentDone String?   @map("treatment_done")
+  manualTherapy String?   @map("manual_therapy")
+  electrotherapy String?  @map("electrotherapy")
+  thermotherapy String?   @map("thermotherapy")
+  homeExercises String?   @map("home_exercises")
+  observations  String?
+  status        String    @default("planned")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  deletedAt     DateTime? @map("deleted_at")
+
+  patient     Patient           @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  therapist   Therapist?        @relation(fields: [therapistId], references: [id], onDelete: SetNull)
+  appointment Appointment?      @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+  progress    SessionProgress[]
+  exercises   SessionExercise[]
+  payments    Payment[]
+
+  @@index([patientId])
+  @@index([sessionDate])
+  @@map("sessions")
+}
+
+model SessionProgress {
+  id                  Int      @id @default(autoincrement())
+  sessionId           Int      @map("session_id")
+  patientId           Int      @map("patient_id")
+  painEvolution       String?  @map("pain_evolution")
+  mobilityEvolution   String?  @map("mobility_evolution")
+  strengthEvolution   String?  @map("strength_evolution")
+  functionalEvolution String?  @map("functional_evolution")
+  progress            String?
+  difficulties        String?
+  exercisesDone       String?  @map("exercises_done")
+  recommendations     String?
+  observations        String?
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  session Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  patient Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@map("session_progress")
+}
+
+model Exercise {
+  id           Int       @id @default(autoincrement())
+  name         String
+  description  String?
+  targetArea   String?   @map("target_area")
+  goal         String?
+  repetitions  Int?
+  sets         Int?
+  duration     Int?
+  difficulty   String?
+  instructions String?
+  precautions  String?
+  notes        String?
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  deletedAt    DateTime? @map("deleted_at")
+
+  sessions SessionExercise[]
+
+  @@map("exercises")
+}
+
+model SessionExercise {
+  id         Int      @id @default(autoincrement())
+  sessionId  Int      @map("session_id")
+  exerciseId Int      @map("exercise_id")
+  repetitions Int?
+  sets       Int?
+  notes      String?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  session  Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  exercise Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+
+  @@map("session_exercises")
+}
+
+// ---------------------------------------------------------------------------
+// Finance : paiements, factures, devis
+// ---------------------------------------------------------------------------
+
+model Payment {
+  id                Int       @id @default(autoincrement())
+  patientId         Int       @map("patient_id")
+  sessionId         Int?      @map("session_id")
+  invoiceId         Int?      @map("invoice_id")
+  amount            Float     @default(0)
+  paidAmount        Float     @default(0) @map("paid_amount")
+  remainingAmount   Float     @default(0) @map("remaining_amount")
+  method            String    @default("cash")
+  paymentDate       DateTime  @map("payment_date")
+  transactionNumber String?   @map("transaction_number")
+  notes             String?
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+  deletedAt         DateTime? @map("deleted_at")
+
+  patient Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  session Session? @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+  invoice Invoice? @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+
+  @@index([patientId])
+  @@index([paymentDate])
+  @@map("payments")
+}
+
+model Invoice {
+  id              Int       @id @default(autoincrement())
+  invoiceNumber   String    @unique @map("invoice_number")
+  patientId       Int       @map("patient_id")
+  issueDate       DateTime  @map("issue_date")
+  dueDate         DateTime? @map("due_date")
+  subtotal        Float     @default(0)
+  discount        Float     @default(0)
+  vatRate         Float     @default(0) @map("vat_rate")
+  vatAmount       Float     @default(0) @map("vat_amount")
+  total           Float     @default(0)
+  paidAmount      Float     @default(0) @map("paid_amount")
+  remainingAmount Float     @default(0) @map("remaining_amount")
+  status          String    @default("unpaid")
+  notes           String?
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  deletedAt       DateTime? @map("deleted_at")
+
+  patient Patient       @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  items   InvoiceItem[]
+  payments Payment[]
+
+  @@index([patientId])
+  @@map("invoices")
+}
+
+model InvoiceItem {
+  id          Int      @id @default(autoincrement())
+  invoiceId   Int      @map("invoice_id")
+  description String
+  quantity    Float    @default(1)
+  unitPrice   Float    @default(0) @map("unit_price")
+  lineTotal   Float    @default(0) @map("line_total")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@map("invoice_items")
+}
+
+model Quote {
+  id            Int       @id @default(autoincrement())
+  quoteNumber   String    @unique @map("quote_number")
+  patientId     Int       @map("patient_id")
+  issueDate     DateTime  @map("issue_date")
+  validUntil    DateTime? @map("valid_until")
+  subtotal      Float     @default(0)
+  discount      Float     @default(0)
+  vatRate       Float     @default(0) @map("vat_rate")
+  vatAmount     Float     @default(0) @map("vat_amount")
+  total         Float     @default(0)
+  status        String    @default("draft")
+  notes         String?
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  deletedAt     DateTime? @map("deleted_at")
+
+  patient Patient     @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  items   QuoteItem[]
+
+  @@index([patientId])
+  @@index([deletedAt])
+  @@map("quotes")
+}
+
+model QuoteItem {
+  id          Int      @id @default(autoincrement())
+  quoteId     Int      @map("quote_id")
+  description String
+  quantity    Float    @default(1)
+  unitPrice   Float    @default(0) @map("unit_price")
+  lineTotal   Float    @default(0) @map("line_total")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  quote Quote @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+
+  @@map("quote_items")
+}
+
+// ---------------------------------------------------------------------------
+// Paramètres, audit, sauvegardes
+// ---------------------------------------------------------------------------
+
+model ClinicSetting {
+  key       String   @id
+  value     String?
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("clinic_settings")
+}
+
+model AuditLog {
+  id        Int      @id @default(autoincrement())
+  userId    String?  @map("user_id")
+  userName  String?  @map("user_name")
+  action    String
+  entity    String?
+  entityId  String?  @map("entity_id")
+  details   String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+model Backup {
+  id        Int      @id @default(autoincrement())
+  fileName  String   @map("file_name")
+  filePath  String   @map("file_path")
+  sizeBytes Int      @default(0) @map("size_bytes")
+  kind      String   @default("manual")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("backups")
+}
