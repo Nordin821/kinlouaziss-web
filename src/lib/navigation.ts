@@ -37,8 +37,21 @@ export function isActiveRoute(href: string, pathname: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
+/**
+ * Titres des pages qui n'apparaissent pas dans le menu principal : l'en-tête
+ * doit tout de même y afficher autre chose que le nom de l'application.
+ */
+const EXTRA_SECTION_TITLES: { href: string; label: string }[] = [
+  { href: ROUTES.account, label: "Mon compte" },
+];
+
 /** Titre de la section correspondant à un chemin. */
 export function sectionTitle(pathname: string): string {
+  const extra = EXTRA_SECTION_TITLES.find((item) =>
+    isActiveRoute(item.href, pathname),
+  );
+  if (extra) return extra.label;
+
   const match = NAV_ITEMS_META.find((item) => isActiveRoute(item.href, pathname));
   return match?.label ?? "KinLouaziss";
 }

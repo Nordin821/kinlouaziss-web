@@ -1,6 +1,7 @@
 "use client";
 
-import { Menu, Search } from "lucide-react";
+import Link from "next/link";
+import { Menu, Search, UserRound } from "lucide-react";
 
 import { Avatar } from "@/components/ui/avatar";
 import {
@@ -11,6 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ROUTES } from "@/lib/constants";
 import { roleLabel } from "@/lib/rbac";
 import { sectionTitle } from "@/lib/navigation";
 import type { SessionUser } from "@/lib/dal";
@@ -69,6 +71,13 @@ export function Header({
                 {user.email ?? user.username}
               </span>
             </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link href={ROUTES.account}>
+                <UserRound />
+                Mon compte
+              </Link>
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onSelect={onLogout}>
               Se déconnecter

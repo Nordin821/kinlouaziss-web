@@ -24,6 +24,8 @@ export const ROUTES = {
   users: "/utilisateurs",
   settings: "/parametres",
   backup: "/sauvegarde",
+  /** Page personnelle, atteinte depuis le menu du compte (hors menu principal). */
+  account: "/mon-compte",
 } as const;
 
 export type RouteKey = keyof typeof ROUTES;

@@ -225,6 +225,8 @@ sont ajoutées pour le multi-utilisateur en ligne.
 - [x] Module **Paramètres** (cabinet, devise, numérotation, formats, thérapeutes)
 - [x] Module **Rapports** (activité, encaissements, export CSV)
 - [x] Module **Sauvegarde** (export JSON complet + CSV par table, historique)
+- [x] Page **Mon compte** (profil de l'utilisateur connecté, changement de mot
+      passe avec vérification du mot de passe actuel)
 
 ### Pistes d'évolution
 
@@ -250,6 +252,11 @@ sont ajoutées pour le multi-utilisateur en ligne.
   paramètres ; la base reste la source de vérité pour éviter toute collision.
 - **Traductions** : la version web est en **français uniquement**. L'application
   desktop reste trilingue (`fr`, `en`, `ar`).
+- **Changement de mot de passe** : Supabase révoque toutes les *autres* sessions
+  dès qu'un mot de passe change. La page « Mon compte » applique donc la
+  modification sur la **session courante** (celle des cookies), pour que
+  l'utilisateur ne soit pas déconnecté ; ses autres appareils, eux, le sont.
+  Vérifier le mot de passe actuel se fait en revanche sur un client isolé.
 - **Logo** : `public/kinlouaziss_logo.png`, copié depuis `projetKenis/assets/images/`.
 
 ## 8. Déploiement (Vercel)
