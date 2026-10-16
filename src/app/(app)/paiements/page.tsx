@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/ui/page-header";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import {
   Select,
   SelectContent,
@@ -137,15 +138,18 @@ export default async function PaymentsPage({
         title="Paiements"
         description={`${filtered.length} encaissement${filtered.length > 1 ? "s" : ""} entre le ${formatDate(from)} et le ${formatDate(to)} · ${settings.currencySymbol}`}
         actions={
-          canManage && patients.length > 0 ? (
-            <NewPaymentButton
-              patients={patients}
-              sessions={sessions}
-              invoices={invoices}
-              defaultDate={dayKey(today)}
-              defaultAmount={settings.sessionDefaultPrice}
-            />
-          ) : null
+          <>
+            <RefreshButton />
+            {canManage && patients.length > 0 ? (
+              <NewPaymentButton
+                patients={patients}
+                sessions={sessions}
+                invoices={invoices}
+                defaultDate={dayKey(today)}
+                defaultAmount={settings.sessionDefaultPrice}
+              />
+            ) : null}
+          </>
         }
       />
 

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/ui/page-header";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import {
   Select,
   SelectContent,
@@ -160,14 +161,17 @@ export default async function SessionsPage({
         title="Séances"
         description={`${sessions.length} séance${sessions.length > 1 ? "s" : ""} · ${Math.round(totalMinutes / 60)} h enregistrées sur la période`}
         actions={
-          canManage && patients.length > 0 ? (
-            <NewSessionButton
-              patients={patients}
-              therapists={therapists}
-              exercises={exercises}
-              defaultDate={dayKey(today)}
-            />
-          ) : null
+          <>
+            <RefreshButton />
+            {canManage && patients.length > 0 ? (
+              <NewSessionButton
+                patients={patients}
+                therapists={therapists}
+                exercises={exercises}
+                defaultDate={dayKey(today)}
+              />
+            ) : null}
+          </>
         }
       />
 

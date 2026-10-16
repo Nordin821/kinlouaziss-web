@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/ui/page-header";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import {
   Select,
   SelectContent,
@@ -110,13 +111,16 @@ export default async function QuotesPage({
         title="Devis"
         description={`${quotes.length} devis enregistré${quotes.length > 1 ? "s" : ""} · ${settings.currencySymbol}`}
         actions={
-          canManage && patients.length > 0 ? (
-            <NewQuoteButton
-              patients={patients}
-              defaultDate={dayKey(new Date())}
-              defaultUnitPrice={settings.sessionDefaultPrice}
-            />
-          ) : null
+          <>
+            <RefreshButton />
+            {canManage && patients.length > 0 ? (
+              <NewQuoteButton
+                patients={patients}
+                defaultDate={dayKey(new Date())}
+                defaultUnitPrice={settings.sessionDefaultPrice}
+              />
+            ) : null}
+          </>
         }
       />
 

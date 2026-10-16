@@ -31,7 +31,7 @@ export function Header({
       <button
         type="button"
         onClick={onOpenMobileMenu}
-        className="rounded-lg p-2 text-muted-foreground hover:bg-muted lg:hidden"
+        className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground lg:hidden"
         aria-label="Ouvrir le menu"
       >
         <Menu className="size-5" />
@@ -44,14 +44,14 @@ export function Header({
       <div className="ml-auto flex items-center gap-2">
         <button
           type="button"
-          className="hidden rounded-lg p-2 text-muted-foreground hover:bg-muted sm:inline-flex"
+          className="hidden rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground sm:inline-flex"
           aria-label="Rechercher"
         >
           <Search className="size-5" />
         </button>
 
         <DropdownMenu>
-          <DropdownMenuTrigger className="flex items-center gap-2 rounded-lg p-1 pr-2 text-left transition-colors hover:bg-muted">
+          <DropdownMenuTrigger className="flex items-center gap-2 rounded-lg p-1 pr-2 text-left transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40">
             <Avatar name={user.fullName} className="size-8" />
             <span className="hidden min-w-0 sm:block">
               <span className="block truncate text-sm font-semibold leading-tight">

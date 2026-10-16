@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/ui/page-header";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import {
   Select,
   SelectContent,
@@ -130,13 +131,16 @@ export default async function InvoicesPage({
         title="Factures"
         description={`${invoices.length} facture${invoices.length > 1 ? "s" : ""} entre le ${formatDate(from)} et le ${formatDate(to)} · ${settings.currencySymbol}`}
         actions={
-          canManage && patients.length > 0 ? (
-            <NewInvoiceButton
-              patients={patients}
-              defaultDate={dayKey(today)}
-              defaultUnitPrice={settings.sessionDefaultPrice}
-            />
-          ) : null
+          <>
+            <RefreshButton />
+            {canManage && patients.length > 0 ? (
+              <NewInvoiceButton
+                patients={patients}
+                defaultDate={dayKey(today)}
+                defaultUnitPrice={settings.sessionDefaultPrice}
+              />
+            ) : null}
+          </>
         }
       />
 

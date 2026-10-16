@@ -1,11 +1,21 @@
 "use client";
 
 import { useTransition } from "react";
-import { CalendarPlus, Clock, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import {
+  CalendarClock,
+  CalendarPlus,
+  Clock,
+  MoreHorizontal,
+  Pencil,
+  Repeat,
+  Trash2,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import {
   deleteAppointment,
+  postponeAppointment,
+  repeatWeeklyAppointment,
   setAppointmentStatus,
 } from "@/app/actions/appointments";
 import { Avatar } from "@/components/ui/avatar";
@@ -87,6 +97,22 @@ export function AppointmentsView({
     const result = await deleteAppointment(row.id);
     if (result && "error" in result) toast.error(result.error);
     else toast.success("Rendez-vous supprimé.");
+  }
+
+  function handlePostpone(row: AppointmentRow) {
+    startTransition(async () => {
+      const result = await postponeAppointment(row.id);
+      if (result && "error" in result) toast.error(result.error);
+      else toast.success("Rendez-vous reporté d'un jour.");
+    });
+  }
+
+  function handleRepeat(row: AppointmentRow) {
+    startTransition(async () => {
+      const result = await repeatWeeklyAppointment(row.id, 4);
+      if (result && "error" in result) toast.error(result.error);
+      else toast.success("Rendez-vous répété sur les 4 prochaines semaines.");
+    });
   }
 
   if (total === 0) {
@@ -213,6 +239,21 @@ export function AppointmentsView({
                                   {action.label}
                                 </DropdownMenuItem>
                               ))}
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                disabled={pending}
+                                onSelect={() => handlePostpone(row)}
+                              >
+                                <CalendarClock />
+                                Reporter d&apos;un jour
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                disabled={pending}
+                                onSelect={() => handleRepeat(row)}
+                              >
+                                <Repeat />
+                                Répéter chaque semaine
+                              </DropdownMenuItem>
                               <DropdownMenuSeparator />
                               <ConfirmDialog
                                 title="Supprimer le rendez-vous"

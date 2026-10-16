@@ -19,21 +19,31 @@ export function DocumentHeader({
 
   return (
     <div className="flex flex-wrap items-start justify-between gap-4 border-b border-border pb-4">
-      <div className="space-y-0.5">
-        <p className="text-lg font-semibold text-primary">
-          {settings.clinicName}
-        </p>
-        {locality ? (
-          <p className="text-xs text-muted-foreground">{locality}</p>
-        ) : null}
-        {contact ? (
-          <p className="text-xs text-muted-foreground">{contact}</p>
-        ) : null}
-        {settings.clinicTaxId ? (
-          <p className="text-xs text-muted-foreground">
-            ICE : {settings.clinicTaxId}
+      <div className="flex items-start gap-3">
+        <span className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/logo"
+            alt={settings.clinicName}
+            className="size-12 object-contain"
+          />
+        </span>
+        <div className="space-y-0.5">
+          <p className="text-lg font-semibold text-primary">
+            {settings.clinicName}
           </p>
-        ) : null}
+          {locality ? (
+            <p className="text-xs text-muted-foreground">{locality}</p>
+          ) : null}
+          {contact ? (
+            <p className="text-xs text-muted-foreground">{contact}</p>
+          ) : null}
+          {settings.clinicTaxId ? (
+            <p className="text-xs text-muted-foreground">
+              ICE : {settings.clinicTaxId}
+            </p>
+          ) : null}
+        </div>
       </div>
       <div className="text-right">
         <p className="text-base font-semibold uppercase tracking-wide">

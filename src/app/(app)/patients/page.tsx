@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/ui/page-header";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import {
   Select,
   SelectContent,
@@ -29,13 +30,16 @@ export default async function PatientsPage({
   const params = await searchParams;
   const query = typeof params.q === "string" ? params.q.trim() : "";
   const status = typeof params.statut === "string" ? params.statut : "";
+  const includeArchived = params.inclure === "1";
   const page = Math.max(1, Number(params.page) || 1);
 
   const where = {
     deletedAt: null,
     ...(status && PATIENT_STATUSES.includes(status as never)
       ? { status }
-      : {}),
+      : !includeArchived
+        ? { status: { not: "archived" } }
+        : {}),
     ...(query
       ? {
           OR: [
@@ -84,7 +88,12 @@ export default async function PatientsPage({
       <PageHeader
         title="Patients"
         description={`${total} patient${total > 1 ? "s" : ""} enregistré${total > 1 ? "s" : ""}`}
-        actions={<NewPatientButton />}
+        actions={
+          <>
+            <RefreshButton />
+            <NewPatientButton />
+          </>
+        }
       />
 
       <Card className="p-4">
@@ -116,6 +125,16 @@ export default async function PatientsPage({
                 ))}
               </SelectContent>
             </Select>
+            <label className="flex items-center gap-2 text-sm text-muted-foreground">
+              <input
+                type="checkbox"
+                name="inclure"
+                value="1"
+                defaultChecked={includeArchived}
+                className="size-4 rounded border-border accent-primary transition"
+              />
+              Inclure les archivés
+            </label>
             <Button type="submit" variant="outline">
               Filtrer
             </Button>
@@ -138,7 +157,7 @@ export default async function PatientsPage({
               disabled={page <= 1}
               aria-disabled={page <= 1}
             >
-              <a href={buildPageHref(page - 1, query, status)}>Précédent</a>
+              <a href={buildPageHref(page - 1, query, status, includeArchived)}>Précédent</a>
             </Button>
             <Button
               asChild
@@ -147,7 +166,7 @@ export default async function PatientsPage({
               disabled={page >= totalPages}
               aria-disabled={page >= totalPages}
             >
-              <a href={buildPageHref(page + 1, query, status)}>Suivant</a>
+              <a href={buildPageHref(page + 1, query, status, includeArchived)}>Suivant</a>
             </Button>
           </div>
         </div>
@@ -160,10 +179,12 @@ function buildPageHref(
   page: number,
   query: string,
   status: string,
+  includeArchived: boolean,
 ): string {
   const params = new URLSearchParams();
   if (query) params.set("q", query);
   if (status && status !== "all") params.set("statut", status);
+  if (includeArchived) params.set("inclure", "1");
   params.set("page", String(Math.max(1, page)));
   return `/patients?${params.toString()}`;
 }

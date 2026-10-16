@@ -12,6 +12,7 @@ import { prisma } from "@/lib/prisma";
 import { loadSettings } from "@/lib/settings";
 
 import { SettingsForm, type SettingsFormValues } from "./settings-form";
+import { LogoSection } from "./logo-section";
 import { TherapistsSection, type TherapistRow } from "./therapists-section";
 
 export const metadata = { title: "Paramètres" };
@@ -111,6 +112,10 @@ export default async function SettingsPage() {
       </div>
 
       <SettingsForm values={formValues} />
+
+      <Card className="p-5">
+        <LogoSection hasCustomLogo={Boolean(values.clinic_logo?.trim())} />
+      </Card>
 
       <Card className="p-5">
         <TherapistsSection therapists={therapistRows} />

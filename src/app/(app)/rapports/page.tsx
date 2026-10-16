@@ -43,6 +43,29 @@ export default async function ReportsPage({
   const { totals } = report;
 
   const exportHref = `/rapports/export?du=${range.fromInput}&au=${range.toInput}`;
+
+  const today = new Date();
+  const dayStart = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate(),
+  );
+  const weekStart = new Date(dayStart);
+  weekStart.setDate(dayStart.getDate() - ((dayStart.getDay() + 6) % 7));
+  const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+  const yearStart = new Date(today.getFullYear(), 0, 1);
+
+  const dayKey = (date: Date) =>
+    `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(
+      date.getDate(),
+    ).padStart(2, "0")}`;
+
+  const quickPeriods: { label: string; href: string }[] = [
+    { label: "Aujourd'hui", href: `/rapports?du=${dayKey(dayStart)}&au=${dayKey(dayStart)}` },
+    { label: "Cette semaine", href: `/rapports?du=${dayKey(weekStart)}&au=${dayKey(today)}` },
+    { label: "Ce mois", href: `/rapports?du=${dayKey(monthStart)}&au=${dayKey(today)}` },
+    { label: "Cette année", href: `/rapports?du=${dayKey(yearStart)}&au=${dayKey(today)}` },
+  ];
   const maxSessions = Math.max(
     1,
     ...report.byMonth.map((month) => month.sessions),
@@ -70,7 +93,26 @@ export default async function ReportsPage({
         }
       />
 
-      <Card className="no-print p-4">
+      <Card className="no-print space-y-3 p-4">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-sm font-medium text-muted-foreground">
+            Période
+          </span>
+          {quickPeriods.map((period) => {
+            const isActive =
+              period.href === `/rapports?du=${range.fromInput}&au=${range.toInput}`;
+            return (
+              <Button
+                key={period.label}
+                asChild
+                variant={isActive ? "default" : "outline"}
+                size="sm"
+              >
+                <a href={period.href}>{period.label}</a>
+              </Button>
+            );
+          })}
+        </div>
         <form method="get" className="flex flex-col gap-3 sm:flex-row sm:items-end">
           <Field label="Du" htmlFor="du" className="sm:w-48">
             <Input

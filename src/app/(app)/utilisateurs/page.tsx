@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/ui/page-header";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import { StatCard } from "@/components/ui/stat-card";
 import { requirePermission } from "@/lib/dal";
 import { prisma } from "@/lib/prisma";
@@ -74,7 +75,12 @@ export default async function UsersPage({
       <PageHeader
         title="Utilisateurs"
         description="Comptes, rôles et permissions des membres du cabinet."
-        actions={<NewUserButton />}
+        actions={
+          <>
+            <RefreshButton />
+            <NewUserButton />
+          </>
+        }
       />
 
       {!serviceRoleConfigured ? (

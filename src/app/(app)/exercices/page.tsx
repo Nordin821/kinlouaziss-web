@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/ui/page-header";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import {
   Select,
   SelectContent,
@@ -76,7 +77,12 @@ export default async function ExercisesPage({
       <PageHeader
         title="Exercices"
         description={`${exercises.length} exercice${exercises.length > 1 ? "s" : ""} dans la bibliothèque`}
-        actions={canManage ? <NewExerciseButton /> : null}
+        actions={
+          <>
+            <RefreshButton />
+            {canManage ? <NewExerciseButton /> : null}
+          </>
+        }
       />
 
       <Card className="p-4">

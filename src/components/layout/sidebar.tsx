@@ -48,8 +48,8 @@ export function Sidebar({
                 "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                 collapsed && "justify-center px-0",
                 active
-                  ? "bg-primary-soft text-primary-soft-foreground"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                  ? "bg-primary-soft text-primary-soft-foreground hover:bg-accent"
+                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
               )}
             >
               <NavIcon
@@ -81,7 +81,7 @@ export function Sidebar({
             type="button"
             onClick={onToggleCollapse}
             className={cn(
-              "mt-1 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted",
+              "mt-1 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground",
               collapsed && "justify-center px-0",
             )}
           >

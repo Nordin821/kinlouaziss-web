@@ -206,7 +206,8 @@ sont ajoutées pour le multi-utilisateur en ligne.
 
 ### Étapes réalisées
 
-- [x] Socle Next.js, thème et identité KinLouaziss (bleu médical `#0F6FBF`)
+- [x] Socle Next.js, thème et identité KinLouaziss (palette issue du logo :
+      bleu pétrole `#1b6e8f`, vert feuille `#336e11`)
 - [x] Authentification Supabase + proxy de session
 - [x] Rôles et permissions
 - [x] Barre latérale filtrée par rôle

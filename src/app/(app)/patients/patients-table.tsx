@@ -2,10 +2,23 @@
 
 import { useTransition } from "react";
 import Link from "next/link";
-import { Eye, MoreHorizontal, Pencil, Plus, Trash2, Users } from "lucide-react";
+import {
+  Archive,
+  ArchiveRestore,
+  Eye,
+  MoreHorizontal,
+  Pencil,
+  Plus,
+  Trash2,
+  Users,
+} from "lucide-react";
 import { toast } from "sonner";
 
-import { deletePatient } from "@/app/actions/patients";
+import {
+  archivePatient,
+  deletePatient,
+  restorePatient,
+} from "@/app/actions/patients";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import {
@@ -45,8 +58,25 @@ export function PatientsTable({ patients }: { patients: PatientRow[] }) {
 
   function handleDelete(patient: PatientRow) {
     startTransition(async () => {
-      await deletePatient(patient.id as number);
-      toast.success("Patient supprimé.");
+      const result = await deletePatient(patient.id as number);
+      if (result && "error" in result) toast.error(result.error);
+      else toast.success("Patient déplacé dans la corbeille.");
+    });
+  }
+
+  function handleArchive(patient: PatientRow) {
+    startTransition(async () => {
+      const result = await archivePatient(patient.id as number);
+      if (result && "error" in result) toast.error(result.error);
+      else toast.success("Patient archivé.");
+    });
+  }
+
+  function handleRestore(patient: PatientRow) {
+    startTransition(async () => {
+      const result = await restorePatient(patient.id as number);
+      if (result && "error" in result) toast.error(result.error);
+      else toast.success("Patient réactivé.");
     });
   }
 
@@ -126,10 +156,27 @@ export function PatientsTable({ patients }: { patients: PatientRow[] }) {
                             </DropdownMenuItem>
                           }
                         />
+                        {patient.status === "archived" ? (
+                          <DropdownMenuItem
+                            disabled={pending}
+                            onSelect={() => handleRestore(patient)}
+                          >
+                            <ArchiveRestore />
+                            Réactiver
+                          </DropdownMenuItem>
+                        ) : (
+                          <DropdownMenuItem
+                            disabled={pending}
+                            onSelect={() => handleArchive(patient)}
+                          >
+                            <Archive />
+                            Archiver
+                          </DropdownMenuItem>
+                        )}
                         <DropdownMenuSeparator />
                         <ConfirmDialog
                           title="Supprimer le patient"
-                          description={`Le patient ${patient.lastName.toUpperCase()} ${patient.firstName} sera retiré des listes. Un administrateur peut le restaurer.`}
+                          description={`Le patient ${patient.lastName.toUpperCase()} ${patient.firstName} sera déplacé dans la corbeille. Il pourra être réactivé par la suite.`}
                           confirmLabel="Supprimer"
                           destructive
                           onConfirm={() => handleDelete(patient)}

@@ -9,6 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import { BACKUP_ENTITIES } from "@/lib/backup";
 import { requirePermission } from "@/lib/dal";
 import { formatDateTime } from "@/lib/format";
@@ -46,6 +47,7 @@ export default async function BackupPage() {
       <PageHeader
         title="Sauvegarde"
         description="Exportez les données du cabinet pour les archiver hors ligne."
+        actions={<RefreshButton />}
       />
 
       <div className="grid gap-6 lg:grid-cols-3">
@@ -102,7 +104,7 @@ export default async function BackupPage() {
               key={entity.key}
               href={`/sauvegarde/export?format=csv&entity=${entity.key}`}
               download
-              className="flex items-center justify-between gap-2 rounded-lg border border-border px-3 py-2 text-sm transition-colors hover:bg-muted"
+              className="flex items-center justify-between gap-2 rounded-lg border border-border px-3 py-2 text-sm transition-colors hover:border-primary/40 hover:bg-accent hover:text-accent-foreground"
             >
               <span className="font-medium">{entity.label}</span>
               <Download className="size-4 text-muted-foreground" />

@@ -1,8 +1,10 @@
 @import "tailwindcss";
 
 /* --------------------------------------------------------------------------
-   Jetons de design — identité KinLouaziss (bleu médical #0F6FBF)
-   Reprend la palette de l'application desktop.
+   Jetons de design — identité KinLouaziss.
+   Palette dérivée des couleurs du logo (`public/kinlouaziss_logo.png`,
+   512×512) : dégradé bleu pétrole (#07364f → #84d3e7) et dégradé vert
+   feuille (#15530b → #c8e78d) sur fond blanc.
    -------------------------------------------------------------------------- */
 :root {
   --background: #f6f8fb;
@@ -11,26 +13,34 @@
   --card: #ffffff;
   --card-foreground: #1a1c1e;
 
-  --primary: #0f6fbf;
+  /* Bleu pétrole du logo (palier 128-159 du dégradé), blanc en contraste 5,8:1. */
+  --primary: #1b6e8f;
   --primary-foreground: #ffffff;
-  --primary-soft: #e1effb;
-  --primary-soft-foreground: #08446f;
+  --primary-soft: #e3eef3;
+  --primary-soft-foreground: #0f4b66;
 
   --muted: #eef2f7;
   --muted-foreground: #5b6472;
 
+  /* Couleurs d'interaction : survol puis appui des éléments cliquables. */
+  --accent: #dbeaf0;
+  --accent-foreground: #0f4b66;
+  --accent-active: #c3dde7;
+
   --border: #e2e8f0;
   --input: #d7dee7;
-  --ring: #0f6fbf;
+  --ring: #1b6e8f;
 
-  --success: #1b8a5a;
-  --success-soft: #e2f4ec;
+  /* Vert feuille du logo (palier 96-127 du dégradé). */
+  --success: #336e11;
+  --success-soft: #e6f0e3;
   --warning: #b26a00;
   --warning-soft: #fdf0dc;
   --danger: #c0392b;
   --danger-soft: #fbe6e3;
-  --info: #1f6f8b;
-  --info-soft: #e2eff3;
+  /* Bleu profond du logo, nettement plus sombre que le pétrole principal. */
+  --info: #0e4a64;
+  --info-soft: #e6f1f4;
   --neutral: #6b7280;
   --neutral-soft: #eef0f3;
 
@@ -49,6 +59,9 @@
   --color-primary-soft-foreground: var(--primary-soft-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-active: var(--accent-active);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -70,20 +83,39 @@
   --radius-pill: 999px;
 }
 
-* {
-  border-color: var(--border);
+/* Règles fondatrices : placées dans `base` pour que les utilitaires
+   Tailwind (couleurs de bordure, transitions) puissent les surcharger. */
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html,
+  body {
+    height: 100%;
+  }
+
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Transition de couleur par défaut des liens ; surchargée par les
+     utilitaires `transition-*` des boutons rendus en `<a>`. */
+  a {
+    transition: color 150ms ease;
+  }
 }
 
-html,
-body {
-  height: 100%;
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
-  -webkit-font-smoothing: antialiased;
+/* --------------------------------------------------------------------------
+   Couleurs d'interaction des liens : dans les tableaux, un lien sans style
+   de survol explicite passe au bleu KinLouaziss au survol. Les liens qui
+   portent déjà une classe `hover:` gardent leur propre comportement.
+   -------------------------------------------------------------------------- */
+tbody a:not([class*="hover:"]):hover {
+  color: var(--primary);
 }
 
 /* --------------------------------------------------------------------------
@@ -137,4 +169,15 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
   background-clip: content-box;
+}
+
+/* Les transitions de couleur et de niveau doivent rester discrètes
+   pour les utilisateurs qui limitent les animations. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
 }

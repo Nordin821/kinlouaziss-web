@@ -2,6 +2,8 @@ import Link from "next/link";
 import {
   ArrowRight,
   CalendarClock,
+  Database,
+  FileText,
   ReceiptText,
   TrendingUp,
   UserPlus,
@@ -14,9 +16,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import { StatCard } from "@/components/ui/stat-card";
 import { ROUTES, patientPath } from "@/lib/constants";
-import { requireUser } from "@/lib/dal";
+import { requireUser, userHasPermission } from "@/lib/dal";
 import {
   formatCurrency,
   formatDate,
@@ -86,12 +89,31 @@ export default async function DashboardPage() {
         title={`Bonjour, ${user.fullName.split(" ")[0]}`}
         description="Vue d'ensemble de l'activité du cabinet."
         actions={
-          <Button asChild>
-            <Link href={ROUTES.appointments}>
-              <CalendarClock />
-              Voir l&apos;agenda
-            </Link>
-          </Button>
+          <div className="no-print flex flex-wrap items-center gap-2">
+            <RefreshButton />
+            {userHasPermission(user, "records.view") ? (
+              <Button asChild variant="outline">
+                <Link href={ROUTES.medicalRecords}>
+                  <FileText />
+                  Dossiers médicaux
+                </Link>
+              </Button>
+            ) : null}
+            {userHasPermission(user, "backup.manage") ? (
+              <Button asChild variant="outline">
+                <Link href={ROUTES.backup}>
+                  <Database />
+                  Sauvegarde
+                </Link>
+              </Button>
+            ) : null}
+            <Button asChild>
+              <Link href={ROUTES.appointments}>
+                <CalendarClock />
+                Voir l&apos;agenda
+              </Link>
+            </Button>
+          </div>
         }
       />
 
@@ -148,7 +170,7 @@ export default async function DashboardPage() {
                 <Link
                   key={appointment.id}
                   href={patientPath(appointment.patientId)}
-                  className="flex items-center gap-3 rounded-lg px-2 py-2.5 transition-colors hover:bg-muted"
+                  className="flex items-center gap-3 rounded-lg px-2 py-2.5 transition-colors hover:bg-accent hover:text-accent-foreground"
                 >
                   <span className="flex w-16 shrink-0 flex-col items-center rounded-lg bg-primary-soft px-2 py-1 text-primary-soft-foreground">
                     <span className="text-sm font-semibold">
@@ -194,7 +216,7 @@ export default async function DashboardPage() {
                 <Link
                   key={patient.id}
                   href={patientPath(patient.id)}
-                  className="flex items-center gap-3 rounded-lg px-2 py-2 transition-colors hover:bg-muted"
+                  className="flex items-center gap-3 rounded-lg px-2 py-2 transition-colors hover:bg-accent hover:text-accent-foreground"
                 >
                   <Avatar
                     name={`${patient.firstName} ${patient.lastName}`}

@@ -3,6 +3,7 @@ import Link from "next/link";
 import {
   ArrowLeft,
   CalendarDays,
+  ChartLine,
   FileText,
   Pencil,
   Phone,
@@ -13,11 +14,13 @@ import {
 } from "lucide-react";
 
 import { StatusBadge } from "@/components/status-badge";
+import { PrintButton } from "@/components/print-button";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import {
   Table,
   TableBody,
@@ -39,6 +42,8 @@ import { prisma } from "@/lib/prisma";
 import { GENDER_LABELS, type GENDERS } from "@/lib/validations/patient";
 
 import { PatientFormDialog } from "../patient-form-dialog";
+
+import { PatientRecordActions } from "./patient-record-actions";
 
 export default async function PatientDetailsPage({
   params,
@@ -101,7 +106,7 @@ export default async function PatientDetailsPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-2">
+      <div className="no-print flex items-center gap-2">
         <Button asChild variant="ghost" size="sm">
           <Link href={ROUTES.patients}>
             <ArrowLeft />
@@ -114,7 +119,15 @@ export default async function PatientDetailsPage({
         title={fullName}
         description={`Dossier ${patient.fileNumber}`}
         actions={
-          <>
+          <div className="no-print flex items-center gap-2">
+            <RefreshButton />
+            <Button asChild variant="outline">
+              <Link href={`${ROUTES.patients}/${patient.id}/rapport`}>
+                <ChartLine />
+                Rapport d&apos;évolution
+              </Link>
+            </Button>
+            <PrintButton label="Imprimer la fiche" />
             <StatusBadge status={patient.status} />
             <PatientFormDialog
               patient={{
@@ -142,7 +155,12 @@ export default async function PatientDetailsPage({
                 </Button>
               }
             />
-          </>
+            <PatientRecordActions
+              patientId={patient.id}
+              status={patient.status}
+              patientName={fullName}
+            />
+          </div>
         }
       />
 

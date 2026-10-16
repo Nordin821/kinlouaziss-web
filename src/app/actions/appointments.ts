@@ -287,3 +287,129 @@ export async function deleteAppointment(
     return { error: "Impossible de supprimer le rendez-vous." };
   }
 }
+
+/**
+ * Reporte un rendez-vous d'un jour (mêmes heure et durée).
+ * Le déplacement est refusé si le créneau cible est déjà occupé.
+ */
+export async function postponeAppointment(
+  appointmentId: number,
+): Promise<AppointmentActionState> {
+  const { user, error } = await requireManage();
+  if (!user) return { error };
+
+  const appointment = await prisma.appointment.findFirst({
+    where: { id: appointmentId, deletedAt: null },
+    select: {
+      id: true,
+      patientId: true,
+      therapistId: true,
+      startsAt: true,
+      endsAt: true,
+    },
+  });
+  if (!appointment) return { error: "Rendez-vous introuvable." };
+
+  const day = 24 * 60 * 60 * 1000;
+  const startsAt = new Date(appointment.startsAt.getTime() + day);
+  const endsAt = new Date(appointment.endsAt.getTime() + day);
+
+  if (await hasConflict(appointment.therapistId, startsAt, endsAt, appointmentId)) {
+    return { error: "Le créneau du lendemain est déjà occupé." };
+  }
+
+  try {
+    await prisma.appointment.update({
+      where: { id: appointmentId },
+      data: { startsAt, endsAt },
+    });
+
+    await logAudit(
+      user,
+      "appointment.postpone",
+      "appointment",
+      appointmentId,
+      startsAt.toISOString(),
+    );
+
+    revalidatePath(ROUTES.appointments);
+    revalidatePath(ROUTES.dashboard);
+    revalidatePath(`${ROUTES.patients}/${appointment.patientId}`);
+    return { ok: true };
+  } catch {
+    return { error: "Impossible de reporter le rendez-vous." };
+  }
+}
+
+/**
+ * Duplique un rendez-vous sur les semaines suivantes (même jour, même heure).
+ * Les créneaux en conflit sont ignorés ; le rendez-vous d'origine est conservé.
+ */
+export async function repeatWeeklyAppointment(
+  appointmentId: number,
+  weeks = 4,
+): Promise<AppointmentActionState> {
+  const { user, error } = await requireManage();
+  if (!user) return { error };
+
+  const appointments = await prisma.appointment.findFirst({
+    where: { id: appointmentId, deletedAt: null },
+    select: {
+      patientId: true,
+      therapistId: true,
+      startsAt: true,
+      endsAt: true,
+      sessionType: true,
+      status: true,
+      notes: true,
+    },
+  });
+  if (!appointments) return { error: "Rendez-vous introuvable." };
+
+  const week = 7 * 24 * 60 * 60 * 1000;
+  const duration = appointments.endsAt.getTime() - appointments.startsAt.getTime();
+  let created = 0;
+
+  try {
+    for (let index = 1; index <= weeks; index += 1) {
+      const startsAt = new Date(appointments.startsAt.getTime() + index * week);
+      const endsAt = new Date(startsAt.getTime() + duration);
+
+      if (await hasConflict(appointments.therapistId, startsAt, endsAt)) {
+        continue;
+      }
+
+      await prisma.appointment.create({
+        data: {
+          patientId: appointments.patientId,
+          therapistId: appointments.therapistId,
+          startsAt,
+          endsAt,
+          sessionType: appointments.sessionType,
+          status: "planned",
+          notes: appointments.notes,
+        },
+      });
+      created += 1;
+    }
+
+    if (created === 0) {
+      return { error: "Aucun créneau libre sur les semaines suivantes." };
+    }
+
+    await logAudit(
+      user,
+      "appointment.repeat",
+      "appointment",
+      appointmentId,
+      `${created} séance(s)`,
+    );
+
+    revalidatePath(ROUTES.appointments);
+    revalidatePath(ROUTES.dashboard);
+    revalidatePath(`${ROUTES.patients}/${appointments.patientId}`);
+    return { ok: true };
+  } catch {
+    return { error: "Impossible de répéter le rendez-vous." };
+  }
+}

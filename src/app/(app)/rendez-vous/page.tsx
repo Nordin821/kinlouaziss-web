@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import {
   Select,
   SelectContent,
@@ -142,13 +143,16 @@ export default async function AppointmentsPage({
         title="Rendez-vous"
         description={weekLabel}
         actions={
-          canManage && patients.length > 0 ? (
-            <NewAppointmentButton
-              patients={patients}
-              therapists={therapists}
-              defaultDate={todayDateKey}
-            />
-          ) : null
+          <>
+            <RefreshButton />
+            {canManage && patients.length > 0 ? (
+              <NewAppointmentButton
+                patients={patients}
+                therapists={therapists}
+                defaultDate={todayDateKey}
+              />
+            ) : null}
+          </>
         }
       />
 

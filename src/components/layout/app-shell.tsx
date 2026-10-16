@@ -65,7 +65,7 @@ export function AppShell({
             <button
               type="button"
               onClick={() => setMobileOpen(false)}
-              className="absolute right-3 top-4 z-10 rounded-md p-1 text-muted-foreground hover:bg-muted"
+              className="absolute right-3 top-4 z-10 rounded-md p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
               aria-label="Fermer le menu"
             >
               <X className="size-4" />

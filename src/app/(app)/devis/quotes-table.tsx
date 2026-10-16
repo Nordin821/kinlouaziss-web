@@ -4,6 +4,7 @@ import { useTransition } from "react";
 import Link from "next/link";
 import {
   Eye,
+  FileCheck,
   FileText,
   FilePlus2,
   MoreHorizontal,
@@ -13,7 +14,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-import { convertQuoteToInvoice, deleteQuote } from "@/app/actions/quotes";
+import { convertQuoteToInvoice, deleteQuote, setQuoteStatus } from "@/app/actions/quotes";
+import { QUOTE_STATUS_LABELS } from "@/lib/validations/quote";
 import { StatusBadge } from "@/components/status-badge";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
@@ -48,6 +50,9 @@ export type QuoteRow = QuoteFormData & {
   total: number;
 };
 
+/** Statuts proposés en raccourci dans la liste des devis. */
+const QUICK_STATUSES = ["sent", "accepted", "rejected"] as const;
+
 export function QuotesTable({
   quotes,
   patients,
@@ -74,6 +79,14 @@ export function QuotesTable({
       const result = await convertQuoteToInvoice(quote.id);
       if (result && "error" in result) toast.error(result.error);
       else toast.success("Devis converti en facture.");
+    });
+  }
+
+  function changeStatus(quote: QuoteRow, status: string, label: string) {
+    startTransition(async () => {
+      const result = await setQuoteStatus(quote.id, status);
+      if (result && "error" in result) toast.error(result.error);
+      else toast.success(label);
     });
   }
 
@@ -168,6 +181,24 @@ export function QuotesTable({
                               Convertir en facture
                             </DropdownMenuItem>
                           ) : null}
+                          {QUICK_STATUSES.filter(
+                            (status) => status !== quote.status,
+                          ).map((status) => (
+                            <DropdownMenuItem
+                              key={status}
+                              disabled={pending}
+                              onSelect={() =>
+                                changeStatus(
+                                  quote,
+                                  status,
+                                  `Statut mis à jour : ${QUOTE_STATUS_LABELS[status].toLowerCase()}.`,
+                                )
+                              }
+                            >
+                              <FileCheck />
+                              Marquer {QUOTE_STATUS_LABELS[status].toLowerCase()}
+                            </DropdownMenuItem>
+                          ))}
                           <DropdownMenuSeparator />
                           <ConfirmDialog
                             title="Supprimer le devis"

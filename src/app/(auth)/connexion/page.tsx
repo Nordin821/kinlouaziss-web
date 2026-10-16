@@ -28,7 +28,7 @@ export default async function LoginPage({
           <span className="flex size-10 items-center justify-center overflow-hidden rounded-xl bg-white/15">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/kinlouaziss_logo.png"
+              src="/logo"
               alt="KinLouaziss"
               className="size-10 object-cover"
             />

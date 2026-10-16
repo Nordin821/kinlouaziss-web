@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-import { deleteSession } from "@/app/actions/sessions";
+import { deleteSession, setSessionStatus } from "@/app/actions/sessions";
 import { EmptyState } from "@/components/ui/empty-state";
 import { StatusBadge } from "@/components/status-badge";
 import { Avatar } from "@/components/ui/avatar";
@@ -50,6 +50,13 @@ export type SessionRow = SessionFormData & {
   sessionTypeLabel: string;
 };
 
+const STATUS_ACTIONS: { status: string; label: string }[] = [
+  { status: "planned", label: "Marquer planifiée" },
+  { status: "in_progress", label: "Marquer en cours" },
+  { status: "completed", label: "Marquer terminée" },
+  { status: "cancelled", label: "Annuler la séance" },
+];
+
 export function SessionsTable({
   sessions,
   patients,
@@ -70,6 +77,14 @@ export function SessionsTable({
       const result = await deleteSession(session.id);
       if (result && "error" in result) toast.error(result.error);
       else toast.success("Séance supprimée.");
+    });
+  }
+
+  function changeStatus(session: SessionRow, status: string, label: string) {
+    startTransition(async () => {
+      const result = await setSessionStatus(session.id, status);
+      if (result && "error" in result) toast.error(result.error);
+      else toast.success(label);
     });
   }
 
@@ -167,6 +182,22 @@ export function SessionsTable({
                             }
                           />
                           <DropdownMenuSeparator />
+                          {STATUS_ACTIONS.filter(
+                            (action) => action.status !== session.status,
+                          ).map((action) => (
+                            <DropdownMenuItem
+                              key={action.status}
+                              disabled={pending}
+                              onSelect={() =>
+                                changeStatus(session, action.status, action.label)
+                              }
+                            >
+                              {action.label}
+                            </DropdownMenuItem>
+                          ))}
+                          {STATUS_ACTIONS.some(
+                            (action) => action.status !== session.status,
+                          ) ? <DropdownMenuSeparator /> : null}
                           <ConfirmDialog
                             title="Supprimer la séance"
                             description={`La séance de ${session.patientName} du ${session.dateLabel} sera supprimée.`}

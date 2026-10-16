@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/ui/page-header";
+import { RefreshButton } from "@/components/ui/refresh-button";
 import {
   Table,
   TableBody,
@@ -65,6 +66,7 @@ export default async function MedicalRecordsPage({
       <PageHeader
         title="Dossiers médicaux"
         description="Ouvrez le dossier clinique d'un patient : motif, diagnostic, antécédents, bilans et plans de traitement."
+        actions={<RefreshButton />}
       />
 
       <Card className="p-4">

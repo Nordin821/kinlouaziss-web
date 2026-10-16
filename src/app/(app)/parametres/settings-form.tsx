@@ -281,7 +281,7 @@ export function SettingsForm({ values }: { values: SettingsFormValues }) {
               type="checkbox"
               name="auto_backup_enabled"
               defaultChecked={values.auto_backup_enabled === "true"}
-              className="size-4 rounded border-input"
+              className="size-4 rounded border-input accent-primary transition"
             />
             Activer le rappel de sauvegarde automatique
           </label>
@@ -290,7 +290,7 @@ export function SettingsForm({ values }: { values: SettingsFormValues }) {
               type="checkbox"
               name="demo_mode"
               defaultChecked={values.demo_mode === "true"}
-              className="size-4 rounded border-input"
+              className="size-4 rounded border-input accent-primary transition"
             />
             Mode démonstration (données fictives)
           </label>

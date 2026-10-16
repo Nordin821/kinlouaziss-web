@@ -174,17 +174,69 @@ export async function updatePatient(
   }
 }
 
-/** Suppression logique (corbeille) d'un patient. */
-export async function deletePatient(patientId: number): Promise<void> {
+/** Archive un patient (réversible, sans suppression des données). */
+export async function archivePatient(
+  patientId: number,
+): Promise<PatientActionState> {
   const user = await requireUser();
 
-  await prisma.patient.update({
-    where: { id: patientId },
-    data: { deletedAt: new Date(), status: "archived" },
-  });
+  try {
+    await prisma.patient.update({
+      where: { id: patientId },
+      data: { status: "archived" },
+    });
 
-  await logAudit(user.id, user.fullName, "patient.delete", String(patientId));
+    await logAudit(user.id, user.fullName, "patient.archive", String(patientId));
 
-  revalidatePath(ROUTES.patients);
-  revalidatePath(ROUTES.dashboard);
+    revalidatePath(ROUTES.patients);
+    revalidatePath(`${ROUTES.patients}/${patientId}`);
+    return { ok: true };
+  } catch {
+    return { error: "Impossible d'archiver le patient." };
+  }
+}
+
+/** Réactive un patient archivé ou en corbeille. */
+export async function restorePatient(
+  patientId: number,
+): Promise<PatientActionState> {
+  const user = await requireUser();
+
+  try {
+    await prisma.patient.update({
+      where: { id: patientId },
+      data: { status: "active", deletedAt: null },
+    });
+
+    await logAudit(user.id, user.fullName, "patient.restore", String(patientId));
+
+    revalidatePath(ROUTES.patients);
+    revalidatePath(`${ROUTES.patients}/${patientId}`);
+    revalidatePath(ROUTES.dashboard);
+    return { ok: true };
+  } catch {
+    return { error: "Impossible de réactiver le patient." };
+  }
+}
+
+/** Suppression logique (corbeille) d'un patient. */
+export async function deletePatient(
+  patientId: number,
+): Promise<PatientActionState> {
+  const user = await requireUser();
+
+  try {
+    await prisma.patient.update({
+      where: { id: patientId },
+      data: { deletedAt: new Date(), status: "archived" },
+    });
+
+    await logAudit(user.id, user.fullName, "patient.delete", String(patientId));
+
+    revalidatePath(ROUTES.patients);
+    revalidatePath(ROUTES.dashboard);
+    return { ok: true };
+  } catch {
+    return { error: "Impossible de supprimer le patient." };
+  }
 }
