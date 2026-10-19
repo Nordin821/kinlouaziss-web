@@ -17,6 +17,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  secondaryColumn,
 } from "@/components/ui/table";
 import { ROUTES } from "@/lib/constants";
 import { requirePermission } from "@/lib/dal";
@@ -91,10 +92,10 @@ export default async function MedicalRecordsPage({
           <TableHeader>
             <TableRow>
               <TableHead>Patient</TableHead>
-              <TableHead>Dossier</TableHead>
+              <TableHead className={secondaryColumn}>Dossier</TableHead>
               <TableHead>Diagnostic</TableHead>
-              <TableHead>Bilans</TableHead>
-              <TableHead>Plans</TableHead>
+              <TableHead className={secondaryColumn}>Bilans</TableHead>
+              <TableHead className={secondaryColumn}>Plans</TableHead>
               <TableHead className="w-12 text-right">Ouvrir</TableHead>
             </TableRow>
           </TableHeader>
@@ -124,12 +125,17 @@ export default async function MedicalRecordsPage({
                           </span>
                           <span className="block text-xs text-muted-foreground">
                             {age !== null ? `${age} ans` : "Âge non renseigné"}
-                            {patient.phone ? ` · ${patient.phone}` : ""}
+                            {patient.phone ? (
+                              <span className="hidden sm:inline">
+                                {" "}
+                                · {patient.phone}
+                              </span>
+                            ) : null}
                           </span>
                         </span>
                       </div>
                     </TableCell>
-                    <TableCell className="font-mono text-xs text-muted-foreground">
+                    <TableCell className={`${secondaryColumn} font-mono text-xs text-muted-foreground`}>
                       {patient.fileNumber}
                       <span className="mt-1 block font-sans">
                         {formatDate(patient.birthDate)}
@@ -140,7 +146,7 @@ export default async function MedicalRecordsPage({
                         {diagnosis ?? patient.medicalRecord?.chiefComplaint ?? "—"}
                       </span>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className={secondaryColumn}>
                       <span
                         className={cn(
                           badgeVariants({
@@ -154,7 +160,7 @@ export default async function MedicalRecordsPage({
                         {patient._count.assessments}
                       </span>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className={secondaryColumn}>
                       <span
                         className={cn(
                           badgeVariants({

@@ -37,6 +37,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  secondaryColumn,
 } from "@/components/ui/table";
 import type { PatientOption, TherapistOption } from "@/lib/options";
 import { StatusBadge } from "@/components/status-badge";
@@ -147,13 +148,15 @@ export function AppointmentsView({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-32">Heure</TableHead>
+                  <TableHead className="w-auto sm:w-32">Heure</TableHead>
                   <TableHead>Patient</TableHead>
-                  <TableHead>Thérapeute</TableHead>
-                  <TableHead>Type</TableHead>
+                  <TableHead className={secondaryColumn}>Thérapeute</TableHead>
+                  <TableHead className={secondaryColumn}>Type</TableHead>
                   <TableHead>Statut</TableHead>
                   {canManage ? (
-                    <TableHead className="w-12 text-right">Actions</TableHead>
+                    <TableHead className="w-auto text-right sm:w-12">
+                      <span className="sr-only sm:not-sr-only">Actions</span>
+                    </TableHead>
                   ) : null}
                 </TableRow>
               </TableHeader>
@@ -169,30 +172,33 @@ export function AppointmentsView({
                     <TableRow key={row.id}>
                       <TableCell className="whitespace-nowrap font-medium">
                         <span className="flex items-center gap-1.5">
-                          <Clock className="size-3.5 text-muted-foreground" />
+                          <Clock className="hidden size-3.5 text-muted-foreground sm:block" />
                           {row.timeLabel}
-                          <span className="text-xs font-normal text-muted-foreground">
+                          <span className="hidden text-xs font-normal text-muted-foreground sm:inline">
                             → {row.endTimeLabel}
                           </span>
                         </span>
                       </TableCell>
                       <TableCell>
                         <span className="flex items-center gap-2">
-                          <Avatar name={row.patientName} className="size-8" />
+                          <Avatar
+                            name={row.patientName}
+                            className="hidden size-8 sm:block"
+                          />
                           <span className="min-w-0">
                             <span className="block truncate text-sm font-medium">
                               {row.patientName}
                             </span>
-                            <span className="block text-xs text-muted-foreground">
+                            <span className="hidden text-xs text-muted-foreground sm:block">
                               {row.patientFile}
                             </span>
                           </span>
                         </span>
                       </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
+                      <TableCell className={`${secondaryColumn} text-sm text-muted-foreground`}>
                         {row.therapistName ?? "—"}
                       </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
+                      <TableCell className={`${secondaryColumn} text-sm text-muted-foreground`}>
                         {row.sessionTypeLabel}
                       </TableCell>
                       <TableCell>

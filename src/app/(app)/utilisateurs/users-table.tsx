@@ -25,6 +25,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  secondaryColumn,
 } from "@/components/ui/table";
 import { formatDateTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -92,11 +93,13 @@ export function UsersTable({
         <TableHeader>
           <TableRow>
             <TableHead>Utilisateur</TableHead>
-            <TableHead>Rôle</TableHead>
+            <TableHead className={secondaryColumn}>Rôle</TableHead>
             <TableHead>Statut</TableHead>
-            <TableHead>Dernière connexion</TableHead>
-            <TableHead>Créé le</TableHead>
-            <TableHead className="w-12 text-right">Actions</TableHead>
+            <TableHead className={secondaryColumn}>Dernière connexion</TableHead>
+            <TableHead className={secondaryColumn}>Créé le</TableHead>
+            <TableHead className="w-auto text-right sm:w-12">
+              <span className="sr-only sm:not-sr-only">Actions</span>
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -115,24 +118,35 @@ export function UsersTable({
                 <TableRow key={user.id}>
                   <TableCell>
                     <div className="flex items-center gap-3">
-                      <Avatar name={user.fullName} />
+                      <Avatar
+                        name={user.fullName}
+                        className="size-8 sm:size-9"
+                      />
                       <span className="min-w-0">
                         <span className="block truncate font-medium">
                           {user.fullName}
                           {isSelf ? (
-                            <span className="ml-1.5 text-xs text-muted-foreground">
+                            <span className="ml-1.5 hidden text-xs text-muted-foreground sm:inline">
                               (vous)
                             </span>
                           ) : null}
                         </span>
                         <span className="block truncate text-xs text-muted-foreground">
-                          {user.email}
-                          {user.phone ? ` · ${user.phone}` : ""}
+                          {/* Sur téléphone, la colonne Rôle est masquée :
+                              le rôle apparaît ici, sous le nom. */}
+                          <span className="sm:hidden">
+                            {ROLE_LABELS[user.roleCode as RoleCode] ??
+                              user.roleCode}
+                          </span>
+                          <span className="hidden sm:inline">
+                            {user.email}
+                            {user.phone ? ` · ${user.phone}` : ""}
+                          </span>
                         </span>
                       </span>
                     </div>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className={secondaryColumn}>
                     <RoleBadge roleCode={user.roleCode} />
                   </TableCell>
                   <TableCell>
@@ -146,10 +160,10 @@ export function UsersTable({
                       {user.isActive ? "Actif" : "Inactif"}
                     </span>
                   </TableCell>
-                  <TableCell className="text-muted-foreground">
+                  <TableCell className={`${secondaryColumn} text-muted-foreground`}>
                     {user.lastLoginAt ? formatDateTime(user.lastLoginAt) : "Jamais"}
                   </TableCell>
-                  <TableCell className="text-muted-foreground">
+                  <TableCell className={`${secondaryColumn} text-muted-foreground`}>
                     {formatDateTime(user.createdAt)}
                   </TableCell>
                   <TableCell className="text-right">

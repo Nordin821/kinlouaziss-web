@@ -25,6 +25,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  secondaryColumn,
 } from "@/components/ui/table";
 import { patientPath } from "@/lib/constants";
 import { formatCurrency } from "@/lib/format";
@@ -75,11 +76,13 @@ export function PaymentsTable({
           <TableRow>
             <TableHead>Date</TableHead>
             <TableHead>Patient</TableHead>
-            <TableHead className="text-right">Montant dû</TableHead>
+            <TableHead className={`${secondaryColumn} text-right`}>Montant dû</TableHead>
             <TableHead className="text-right">Réglé</TableHead>
-            <TableHead>Règlement</TableHead>
-            <TableHead>Facture</TableHead>
-            <TableHead className="w-12 text-right">Actions</TableHead>
+            <TableHead className={secondaryColumn}>Règlement</TableHead>
+            <TableHead className={secondaryColumn}>Facture</TableHead>
+            <TableHead className="w-auto text-right sm:w-12">
+              <span className="sr-only sm:not-sr-only">Actions</span>
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -112,7 +115,7 @@ export function PaymentsTable({
                       </span>
                     </Link>
                   </TableCell>
-                  <TableCell className="text-right tabular-nums">
+                  <TableCell className={`${secondaryColumn} text-right tabular-nums`}>
                     {formatCurrency(payment.amount)}
                   </TableCell>
                   <TableCell className="text-right tabular-nums">
@@ -125,7 +128,7 @@ export function PaymentsTable({
                       </span>
                     ) : null}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className={secondaryColumn}>
                     <span className="block text-sm">
                       {payment.methodLabel}
                     </span>
@@ -133,7 +136,7 @@ export function PaymentsTable({
                       <StatusBadge status={status} />
                     </span>
                   </TableCell>
-                  <TableCell className="font-mono text-xs text-muted-foreground">
+                  <TableCell className={`${secondaryColumn} font-mono text-xs text-muted-foreground`}>
                     {payment.invoiceNumber ?? "—"}
                   </TableCell>
                   <TableCell className="text-right">

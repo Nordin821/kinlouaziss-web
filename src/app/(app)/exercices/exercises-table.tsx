@@ -24,6 +24,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  secondaryColumn,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { DIFFICULTY_LABELS, type DifficultyLevel } from "@/lib/validations/exercise";
@@ -69,10 +70,12 @@ export function ExercisesTable({ exercises }: { exercises: ExerciseRow[] }) {
         <TableHeader>
           <TableRow>
             <TableHead>Exercice</TableHead>
-            <TableHead>Zone ciblée</TableHead>
-            <TableHead>Prescription</TableHead>
+            <TableHead className={secondaryColumn}>Zone ciblée</TableHead>
+            <TableHead className={secondaryColumn}>Prescription</TableHead>
             <TableHead>Difficulté</TableHead>
-            <TableHead className="w-12 text-right">Actions</TableHead>
+            <TableHead className="w-auto text-right sm:w-12">
+              <span className="sr-only sm:not-sr-only">Actions</span>
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -95,10 +98,10 @@ export function ExercisesTable({ exercises }: { exercises: ExerciseRow[] }) {
                     </span>
                   ) : null}
                 </TableCell>
-                <TableCell className="text-muted-foreground">
+                <TableCell className={`${secondaryColumn} text-muted-foreground`}>
                   {exercise.targetArea ?? "—"}
                 </TableCell>
-                <TableCell className="text-muted-foreground">
+                <TableCell className={`${secondaryColumn} text-muted-foreground`}>
                   {formatPrescription(exercise)}
                 </TableCell>
                 <TableCell>{difficultyBadge(exercise.difficulty)}</TableCell>

@@ -33,6 +33,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  secondaryColumn,
 } from "@/components/ui/table";
 import type { PatientOption, TherapistOption } from "@/lib/options";
 
@@ -95,11 +96,13 @@ export function SessionsTable({
           <TableRow>
             <TableHead>Date</TableHead>
             <TableHead>Patient</TableHead>
-            <TableHead>Thérapeute</TableHead>
-            <TableHead>Type</TableHead>
-            <TableHead>Exercices</TableHead>
+            <TableHead className={secondaryColumn}>Thérapeute</TableHead>
+            <TableHead className={secondaryColumn}>Type</TableHead>
+            <TableHead className={secondaryColumn}>Exercices</TableHead>
             <TableHead>Statut</TableHead>
-            <TableHead className="w-12 text-right">Actions</TableHead>
+            <TableHead className="w-auto text-right sm:w-12">
+              <span className="sr-only sm:not-sr-only">Actions</span>
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -138,13 +141,13 @@ export function SessionsTable({
                     </span>
                   </Link>
                 </TableCell>
-                <TableCell className="text-sm text-muted-foreground">
+                <TableCell className={`${secondaryColumn} text-sm text-muted-foreground`}>
                   {session.therapistName ?? "—"}
                 </TableCell>
-                <TableCell className="text-sm text-muted-foreground">
+                <TableCell className={`${secondaryColumn} text-sm text-muted-foreground`}>
                   {session.sessionTypeLabel}
                 </TableCell>
-                <TableCell className="text-sm text-muted-foreground">
+                <TableCell className={`${secondaryColumn} text-sm text-muted-foreground`}>
                   {session.exercises.length || "—"}
                 </TableCell>
                 <TableCell>

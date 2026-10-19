@@ -25,6 +25,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  secondaryColumn,
 } from "@/components/ui/table";
 import { patientPath } from "@/lib/constants";
 import { formatCurrency } from "@/lib/format";
@@ -70,13 +71,15 @@ export function InvoicesTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Numéro</TableHead>
+            <TableHead className={secondaryColumn}>Numéro</TableHead>
             <TableHead>Patient</TableHead>
-            <TableHead>Émission</TableHead>
-            <TableHead className="text-right">Total</TableHead>
+            <TableHead className={secondaryColumn}>Émission</TableHead>
+            <TableHead className={`${secondaryColumn} text-right`}>Total</TableHead>
             <TableHead className="text-right">Reste dû</TableHead>
             <TableHead>Statut</TableHead>
-            <TableHead className="w-12 text-right">Actions</TableHead>
+            <TableHead className="w-auto text-right sm:w-12">
+              <span className="sr-only sm:not-sr-only">Actions</span>
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -91,7 +94,7 @@ export function InvoicesTable({
           ) : (
             invoices.map((invoice) => (
               <TableRow key={invoice.id}>
-                <TableCell className="font-mono text-xs">
+                <TableCell className={`${secondaryColumn} font-mono text-xs`}>
                   <Link
                     href={`/factures/${invoice.id}`}
                     className="font-medium text-primary"
@@ -109,10 +112,10 @@ export function InvoicesTable({
                     </span>
                   </Link>
                 </TableCell>
-                <TableCell className="text-muted-foreground">
+                <TableCell className={`${secondaryColumn} text-muted-foreground`}>
                   {invoice.issueDateLabel}
                 </TableCell>
-                <TableCell className="text-right tabular-nums">
+                <TableCell className={`${secondaryColumn} text-right tabular-nums`}>
                   {formatCurrency(invoice.total)}
                 </TableCell>
                 <TableCell className="text-right tabular-nums">

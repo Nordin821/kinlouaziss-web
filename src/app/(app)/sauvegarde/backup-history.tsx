@@ -15,6 +15,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  secondaryColumn,
 } from "@/components/ui/table";
 
 export type BackupRow = {
@@ -77,10 +78,12 @@ export function BackupHistory({ backups }: { backups: BackupRow[] }) {
           <TableHeader>
             <TableRow>
               <TableHead>Fichier</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead className="text-right">Taille</TableHead>
+              <TableHead className={secondaryColumn}>Type</TableHead>
+              <TableHead className={`${secondaryColumn} text-right`}>Taille</TableHead>
               <TableHead>Date</TableHead>
-              <TableHead className="w-12 text-right">Actions</TableHead>
+              <TableHead className="w-auto text-right sm:w-12">
+                <span className="sr-only sm:not-sr-only">Actions</span>
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -97,10 +100,10 @@ export function BackupHistory({ backups }: { backups: BackupRow[] }) {
                   <TableCell className="font-mono text-xs">
                     {backup.fileName}
                   </TableCell>
-                  <TableCell className="text-muted-foreground">
+                  <TableCell className={`${secondaryColumn} text-muted-foreground`}>
                     {KIND_LABELS[backup.kind] ?? backup.kind}
                   </TableCell>
-                  <TableCell className="text-right tabular-nums">
+                  <TableCell className={`${secondaryColumn} text-right tabular-nums`}>
                     {backup.sizeLabel}
                   </TableCell>
                   <TableCell className="text-muted-foreground">

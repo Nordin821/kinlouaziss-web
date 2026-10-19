@@ -48,7 +48,7 @@ export function TableHead({ className, ...props }: React.ComponentProps<"th">) {
   return (
     <th
       className={cn(
-        "h-11 whitespace-nowrap px-3 text-left align-middle text-xs font-semibold uppercase tracking-wide text-muted-foreground",
+        "h-11 whitespace-nowrap px-2 text-left align-middle text-xs font-semibold uppercase tracking-wide text-muted-foreground sm:px-3",
         className,
       )}
       {...props}
@@ -59,11 +59,19 @@ export function TableHead({ className, ...props }: React.ComponentProps<"th">) {
 export function TableCell({ className, ...props }: React.ComponentProps<"td">) {
   return (
     <td
-      className={cn("px-3 py-3 align-middle text-foreground", className)}
+      className={cn("px-2 py-3 align-middle text-foreground sm:px-3", className)}
       {...props}
     />
   );
 }
+
+/**
+ * Colonne secondaire : masquée sur téléphone (moins de 640 px, le point de
+ * rupture `sm`) afin que les tableaux larges (patients, factures, séances…)
+ * tiennent d'un seul coup d'œil sans défilement horizontal, puis rétablie.
+ * À appliquer à la fois sur l'en-tête et sur la cellule de chaque ligne.
+ */
+export const secondaryColumn = "hidden sm:table-cell";
 
 export function TableEmpty({
   colSpan,

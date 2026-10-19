@@ -39,6 +39,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  secondaryColumn,
 } from "@/components/ui/table";
 import { patientPath } from "@/lib/constants";
 import { calculateAge, formatDate } from "@/lib/format";
@@ -86,12 +87,14 @@ export function PatientsTable({ patients }: { patients: PatientRow[] }) {
         <TableHeader>
           <TableRow>
             <TableHead>Patient</TableHead>
-            <TableHead>Dossier</TableHead>
-            <TableHead>Téléphone</TableHead>
-            <TableHead>Ville</TableHead>
-            <TableHead>Inscription</TableHead>
+            <TableHead className={secondaryColumn}>Dossier</TableHead>
+            <TableHead className={secondaryColumn}>Téléphone</TableHead>
+            <TableHead className={secondaryColumn}>Ville</TableHead>
+            <TableHead className={secondaryColumn}>Inscription</TableHead>
             <TableHead>Statut</TableHead>
-            <TableHead className="w-12 text-right">Actions</TableHead>
+            <TableHead className="w-auto text-right sm:w-12">
+              <span className="sr-only sm:not-sr-only">Actions</span>
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -120,16 +123,27 @@ export function PatientsTable({ patients }: { patients: PatientRow[] }) {
                         </span>
                         <span className="block text-xs text-muted-foreground">
                           {age !== null ? `${age} ans` : "Âge non renseigné"}
+                          {/* Sur téléphone, la colonne Téléphone est masquée :
+                              le numéro apparaît ici, sous le nom. */}
+                          {patient.phone ? (
+                            <span className="sm:hidden"> · {patient.phone}</span>
+                          ) : null}
                         </span>
                       </span>
                     </Link>
                   </TableCell>
-                  <TableCell className="font-mono text-xs text-muted-foreground">
+                  <TableCell className={`${secondaryColumn} font-mono text-xs text-muted-foreground`}>
                     {patient.fileNumber}
                   </TableCell>
-                  <TableCell>{patient.phone ?? "—"}</TableCell>
-                  <TableCell>{patient.city ?? "—"}</TableCell>
-                  <TableCell>{formatDate(patient.registeredAt)}</TableCell>
+                  <TableCell className={secondaryColumn}>
+                    {patient.phone ?? "—"}
+                  </TableCell>
+                  <TableCell className={secondaryColumn}>
+                    {patient.city ?? "—"}
+                  </TableCell>
+                  <TableCell className={secondaryColumn}>
+                    {formatDate(patient.registeredAt)}
+                  </TableCell>
                   <TableCell>
                     <StatusBadge status={patient.status} />
                   </TableCell>

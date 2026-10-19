@@ -35,6 +35,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  secondaryColumn,
 } from "@/components/ui/table";
 import { patientPath } from "@/lib/constants";
 import { formatCurrency } from "@/lib/format";
@@ -95,12 +96,14 @@ export function QuotesTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Numéro</TableHead>
+            <TableHead className={secondaryColumn}>Numéro</TableHead>
             <TableHead>Patient</TableHead>
-            <TableHead>Émission</TableHead>
+            <TableHead className={secondaryColumn}>Émission</TableHead>
             <TableHead className="text-right">Total</TableHead>
             <TableHead>Statut</TableHead>
-            <TableHead className="w-12 text-right">Actions</TableHead>
+            <TableHead className="w-auto text-right sm:w-12">
+              <span className="sr-only sm:not-sr-only">Actions</span>
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -115,7 +118,7 @@ export function QuotesTable({
           ) : (
             quotes.map((quote) => (
               <TableRow key={quote.id}>
-                <TableCell className="font-mono text-xs">
+                <TableCell className={`${secondaryColumn} font-mono text-xs`}>
                   <Link
                     href={`/devis/${quote.id}`}
                     className="font-medium text-primary"
@@ -131,7 +134,7 @@ export function QuotesTable({
                     </span>
                   </Link>
                 </TableCell>
-                <TableCell className="text-muted-foreground">
+                <TableCell className={`${secondaryColumn} text-muted-foreground`}>
                   {quote.issueDateLabel}
                 </TableCell>
                 <TableCell className="text-right tabular-nums">

@@ -65,7 +65,10 @@ export default async function BackupPage() {
               </p>
             </div>
           </div>
-          <Button asChild>
+          <Button
+            asChild
+            className="h-auto w-full whitespace-normal py-2 text-center sm:w-auto"
+          >
             <a href="/sauvegarde/export?format=json" download>
               <Download />
               Télécharger la sauvegarde complète
