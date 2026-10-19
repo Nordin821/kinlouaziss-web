@@ -63,9 +63,19 @@ export default async function LoginPage({
 
           <LoginForm next={next} />
 
-          <p className="text-center text-xs text-muted-foreground">
-            Problème d&apos;accès ? Contactez votre administrateur.
-          </p>
+          {/* Mot de passe oublié : pas de flux e-mail (les adresses du cabinet
+              n'ont pas de domaine réel), l'administrateur fait office de
+              relais depuis Paramètres → Utilisateurs. */}
+          <div className="space-y-1 rounded-lg bg-primary-soft px-3 py-2.5 text-center text-xs leading-relaxed">
+            <p className="font-medium text-primary-soft-foreground">
+              Mot de passe oublié ?
+            </p>
+            <p className="text-primary-soft-foreground/80">
+              Contactez votre administrateur : il peut le réinitialiser
+              (Paramètres → Utilisateurs) et vous remettre un mot de passe
+              provisoire, à remplacer dès votre prochaine connexion.
+            </p>
+          </div>
         </div>
       </div>
     </div>

@@ -1,5 +1,6 @@
 "use server";
 
+import { randomInt } from "node:crypto";
 import { revalidatePath } from "next/cache";
 
 import { prisma } from "@/lib/prisma";
@@ -15,6 +16,27 @@ import {
 } from "@/lib/validations/user";
 
 export type UserActionState = { ok: true } | { error: string } | undefined;
+
+export type ResetUserPasswordState =
+  | { ok: true; temporaryPassword: string }
+  | { error: string }
+  | undefined;
+
+/**
+ * Alphabet sans caractère ambigu (0/O, 1/I/l) : le mot de passe provisoire est
+ * dicté ou copié à la main par l'administrateur, il doit rester lisible.
+ */
+const TEMP_PASSWORD_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+
+/** Mot de passe provisoire aléatoire, au format `KinL-XXXX-XXXX`. */
+function temporaryPassword(): string {
+  const chunk = (length: number) =>
+    Array.from(
+      { length },
+      () => TEMP_PASSWORD_ALPHABET[randomInt(TEMP_PASSWORD_ALPHABET.length)],
+    ).join("");
+  return `KinL-${chunk(4)}-${chunk(4)}`;
+}
 
 const SERVICE_ROLE_ERROR =
   "La gestion des comptes est indisponible : la clé SUPABASE_SERVICE_ROLE_KEY " +
@@ -342,4 +364,82 @@ export async function deleteUser(userId: string): Promise<UserActionState> {
 
   revalidatePath(ROUTES.users);
   return { ok: true };
+}
+
+/**
+ * Réinitialise le mot de passe d'un utilisateur et l'oblige à en choisir un
+ * autre à sa prochaine connexion.
+ *
+ * Aucun e-mail n'est envoyé : le mot de passe provisoire est affiché une seule
+ * fois à l'administrateur, qui le transmet à son collègue. C'est le seul chemin
+ * possible tant que les adresses du cabinet ne renvoient pas à un domaine
+ * réel — Supabase refuse d'envoyer un lien de réinitialisation vers un domaine
+ * inexistant (`email_address_invalid`).
+ */
+export async function resetUserPassword(
+  userId: string,
+): Promise<ResetUserPasswordState> {
+  const auth = await guard();
+  if (!auth.ok) return { error: auth.error };
+
+  if (userId === auth.id) {
+    return {
+      error:
+        "Vous ne pouvez pas réinitialiser votre propre mot de passe : " +
+        "utilisez la page Mon compte.",
+    };
+  }
+
+  if (!isServiceRoleConfigured()) return { error: SERVICE_ROLE_ERROR };
+
+  const target = await prisma.appUser.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      fullName: true,
+      email: true,
+      isActive: true,
+      deletedAt: true,
+    },
+  });
+  if (!target || target.deletedAt) return { error: "Utilisateur introuvable." };
+
+  if (!target.isActive) {
+    return {
+      error:
+        "Ce compte est désactivé. Activez-le avant de réinitialiser son " +
+        "mot de passe.",
+    };
+  }
+
+  const password = temporaryPassword();
+
+  const supabase = createAdminClient();
+  const { error } = await supabase.auth.admin.updateUserById(userId, {
+    password,
+  });
+
+  if (error) {
+    return { error: "La réinitialisation du mot de passe a échoué. Réessayez." };
+  }
+
+  try {
+    await prisma.appUser.update({
+      where: { id: userId },
+      data: { mustChangePassword: true },
+    });
+  } catch {
+    return { error: "Impossible d'enregistrer la réinitialisation." };
+  }
+
+  await logAudit(
+    auth.id,
+    auth.name,
+    "user.reset_password",
+    userId,
+    target.email ?? target.fullName,
+  );
+
+  revalidatePath(ROUTES.users);
+  return { ok: true, temporaryPassword: password };
 }

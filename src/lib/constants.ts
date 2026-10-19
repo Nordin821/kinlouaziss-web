@@ -26,6 +26,13 @@ export const ROUTES = {
   backup: "/sauvegarde",
   /** Page personnelle, atteinte depuis le menu du compte (hors menu principal). */
   account: "/mon-compte",
+  /**
+   * Choix d'un nouveau mot de passe après réinitialisation par un
+   * administrateur. Route hors des groupes `(auth)` et `(app)` : l'utilisateur
+   * est connecté, mais le shell de l'application lui est fermé tant qu'il n'a
+   * pas choisi son propre mot de passe.
+   */
+  passwordReset: "/mot-de-passe-reinitialisation",
 } as const;
 
 export type RouteKey = keyof typeof ROUTES;

@@ -38,3 +38,25 @@ export const accountPasswordSchema = z
   });
 
 export type AccountPasswordValues = z.infer<typeof accountPasswordSchema>;
+
+/**
+ * Choix d'un nouveau mot de passe **après réinitialisation par un
+ * administrateur**.
+ *
+ * Le mot de passe provisoire vient d'être saisi pour se connecter : il n'a pas
+ * à être ressaisi, la session en cours prouve déjà qu'il est connu.
+ */
+export const passwordChoiceSchema = z
+  .object({
+    newPassword: z
+      .string()
+      .min(8, "Le mot de passe doit contenir au moins 8 caractères.")
+      .max(72, "Mot de passe trop long."),
+    confirmPassword: z.string().min(1, "Confirmez le nouveau mot de passe."),
+  })
+  .refine((values) => values.newPassword === values.confirmPassword, {
+    message: "Les deux mots de passe ne correspondent pas.",
+    path: ["confirmPassword"],
+  });
+
+export type PasswordChoiceValues = z.infer<typeof passwordChoiceSchema>;

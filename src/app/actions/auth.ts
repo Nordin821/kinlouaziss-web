@@ -44,10 +44,12 @@ export async function signIn(
     data: { user },
   } = await supabase.auth.getUser();
 
+  let mustChangePassword = false;
+
   if (user) {
     const profile = await prisma.appUser.findUnique({
       where: { id: user.id },
-      select: { isActive: true, deletedAt: true },
+      select: { isActive: true, deletedAt: true, mustChangePassword: true },
     });
 
     // Compte désactivé ou supprimé : on refuse la session applicative.
@@ -58,6 +60,8 @@ export async function signIn(
           "Ce compte est désactivé. Contactez un administrateur du cabinet.",
       };
     }
+
+    mustChangePassword = profile.mustChangePassword;
 
     await prisma.appUser
       .update({
@@ -71,6 +75,10 @@ export async function signIn(
     parsed.data.next && parsed.data.next.startsWith("/")
       ? parsed.data.next
       : ROUTES.dashboard;
+
+  // Mot de passe provisoire : l'application reste fermée jusqu'au premier
+  // choix. La page de changement forcé est la seule accessible.
+  if (mustChangePassword) redirect(ROUTES.passwordReset);
 
   redirect(target);
 }

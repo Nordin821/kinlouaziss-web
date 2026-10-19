@@ -227,6 +227,11 @@ sont ajoutées pour le multi-utilisateur en ligne.
 - [x] Module **Sauvegarde** (export JSON complet + CSV par table, historique)
 - [x] Page **Mon compte** (profil de l'utilisateur connecté, changement de mot
       passe avec vérification du mot de passe actuel)
+- [x] **Mot de passe oublié** : mention sur la page de connexion, bouton
+      « Réinitialiser le mot de passe » dans Utilisateurs (mot de passe
+      provisoire affiché une seule fois, copiable), puis changement forcé sur
+      `/mot-de-passe-reinitialisation` — l'application reste fermée tant que le
+      provisoire n'est pas remplacé
 
 ### Pistes d'évolution
 
@@ -257,6 +262,17 @@ sont ajoutées pour le multi-utilisateur en ligne.
   modification sur la **session courante** (celle des cookies), pour que
   l'utilisateur ne soit pas déconnecté ; ses autres appareils, eux, le sont.
   Vérifier le mot de passe actuel se fait en revanche sur un client isolé.
+- **Mot de passe oublié** : il n'y a **pas de flux par e-mail**, et ce n'est pas
+  un oubli. Le domaine `kinlouaziss.ma` n'existe pas dans le DNS (NXDOMAIN sur
+  les enregistrements `A` **et** `MX`), si bien que Supabase refuse de délivrer
+  un lien de réinitialisation vers une adresse de ce domaine
+  (`400 email_address_invalid` — vérifié le 19/10/2026) ; le forfait gratuit
+  limite par ailleurs les envois à quelques e-mails par heure
+  (`429 over_email_send_rate_limit`). Un compte peut néanmoins fonctionner avec
+  une adresse inexistante, car l'administrateur crée les utilisateurs avec
+  `email_confirm: true` : aucune vérification d'adresse n'a lieu. La
+  réinitialisation passe donc par un administrateur (Utilisateurs → Réinitialiser
+  le mot de passe), qui transmet le code provisoire hors application.
 - **Logo** : `public/kinlouaziss_logo.png`, copié depuis `projetKenis/assets/images/`.
 
 ## 8. Déploiement (Vercel)

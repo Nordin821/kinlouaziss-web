@@ -1,7 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
-import { MoreHorizontal, Pencil, Plus, Trash2, UserCheck, UserX, Users } from "lucide-react";
+import { KeyRound, MoreHorizontal, Pencil, Plus, Trash2, UserCheck, UserX, Users } from "lucide-react";
 import { toast } from "sonner";
 
 import { deleteUser, setUserActive } from "@/app/actions/users";
@@ -31,6 +31,7 @@ import { cn } from "@/lib/utils";
 import { ROLE_LABELS, type RoleCode } from "@/lib/rbac";
 
 import { UserFormDialog, type UserFormData } from "./user-form-dialog";
+import { ResetPasswordDialog } from "./reset-password-dialog";
 
 export type UserRow = UserFormData & {
   lastLoginAt: string | null;
@@ -168,6 +169,19 @@ export function UsersTable({
                             >
                               <Pencil />
                               Modifier
+                            </DropdownMenuItem>
+                          }
+                        />
+                        <ResetPasswordDialog
+                          user={user}
+                          disabled={pending || isSelf}
+                          trigger={
+                            <DropdownMenuItem
+                              disabled={pending || isSelf}
+                              onSelect={(event) => event.preventDefault()}
+                            >
+                              <KeyRound />
+                              Réinitialiser le mot de passe
                             </DropdownMenuItem>
                           }
                         />

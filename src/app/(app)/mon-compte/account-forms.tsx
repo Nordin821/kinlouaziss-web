@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, KeyRound, Save } from "lucide-react";
+import { KeyRound, Save } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 
 type ActionResult = { ok: true } | { error: string } | undefined;
 
@@ -64,44 +65,6 @@ function FormError({ error }: { error: string | null }) {
     >
       {error}
     </p>
-  );
-}
-
-/** Champ mot de passe avec bascule d'affichage. */
-function PasswordInput({
-  id,
-  name,
-  autoComplete,
-  placeholder,
-}: {
-  id: string;
-  name: string;
-  autoComplete: string;
-  placeholder?: string;
-}) {
-  const [visible, setVisible] = useState(false);
-
-  return (
-    <div className="relative">
-      <Input
-        id={id}
-        name={name}
-        type={visible ? "text" : "password"}
-        autoComplete={autoComplete}
-        placeholder={placeholder}
-        className="pr-10"
-        required
-      />
-      <button
-        type="button"
-        onClick={() => setVisible((value) => !value)}
-        aria-label={visible ? "Masquer le mot de passe" : "Afficher le mot de passe"}
-        aria-pressed={visible}
-        className="absolute right-1 top-1/2 -translate-y-1/2 rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
-      >
-        {visible ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-      </button>
-    </div>
   );
 }
 

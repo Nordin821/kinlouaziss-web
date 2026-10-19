@@ -13,6 +13,7 @@ import { createClient as createSessionClient } from "@/lib/supabase/server";
 import {
   accountPasswordSchema,
   accountProfileSchema,
+  passwordChoiceSchema,
 } from "@/lib/validations/account";
 
 export type AccountActionState = { ok: true } | { error: string } | undefined;
@@ -141,5 +142,55 @@ export async function changeAccountPassword(
   await logAudit(user, "update", "account", user.id, "Mot de passe modifié");
 
   revalidatePath(ROUTES.account);
+  return { ok: true };
+}
+
+/**
+ * Premier mot de passe choisi par l'utilisateur après une réinitialisation par
+ * un administrateur.
+ *
+ * Le mot de passe provisoire n'est pas ressaisi : l'utilisateur vient de
+ * s'authentifier avec, et la session en cours en fait foi. On applique donc le
+ * nouveau mot de passe directement sur cette session — même raison que dans
+ * `changeAccountPassword`, Supabase révoquant les autres sessions lors du
+ * changement.
+ */
+export async function completeForcedPasswordChange(
+  formData: FormData,
+): Promise<AccountActionState> {
+  const user = await requireUser();
+
+  // Hors réinitialisation en attente, la page n'a pas de raison d'exister.
+  if (!user.mustChangePassword) {
+    return { error: "Aucun changement de mot de passe n'est demandé." };
+  }
+
+  const parsed = passwordChoiceSchema.safeParse({
+    newPassword: formData.get("newPassword"),
+    confirmPassword: formData.get("confirmPassword"),
+  });
+
+  if (!parsed.success) {
+    return { error: firstMessage(parsed.error) };
+  }
+
+  const supabase = await createSessionClient();
+  const { error: updateError } = await supabase.auth.updateUser({
+    password: parsed.data.newPassword,
+  });
+
+  if (updateError) {
+    return {
+      error: `Le mot de passe n'a pas pu être modifié : ${updateError.message}`,
+    };
+  }
+
+  await prisma.appUser
+    .update({ where: { id: user.id }, data: { mustChangePassword: false } })
+    .catch(() => undefined);
+
+  await logAudit(user, "update", "account", user.id, "Mot de passe choisi après réinitialisation");
+
+  revalidatePath("/", "layout");
   return { ok: true };
 }
