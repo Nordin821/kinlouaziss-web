@@ -1,0 +1,19 @@
+{
+  "name": "KinLouaziss — Gestion du cabinet",
+  "short_name": "KinLouaziss",
+  "lang": "fr",
+  "description": "Gestion des patients, dossiers médicaux, rendez-vous, séances et facturation.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f6f8fb",
+  "theme_color": "#1b6e8f",
+  "icons": [
+    {
+      "src": "/kinlouaziss_logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

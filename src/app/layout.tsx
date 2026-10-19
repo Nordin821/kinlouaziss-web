@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { Toaster } from "sonner";
 
@@ -17,13 +17,22 @@ export const metadata: Metadata = {
     template: `%s · ${APP_NAME}`,
   },
   description: APP_TAGLINE,
-  /* « Ajouter à l'écran d'accueil » sur iPhone : l'application s'ouvre alors
-     en plein écran, sans la barre du navigateur. */
+  /* « Ajouter à l'écran d'accueil » : sur iPhone comme sur Android, le
+     manifeste permet l'installation (WebAPK) et l'ouverture en plein écran. */
+  manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     title: APP_NAME,
     statusBarStyle: "default",
   },
+};
+
+/* Android (Chrome) colore sa barre d'adresse avec `themeColor`, et assombrit
+   automatiquement les sites qui ne se déclarent pas clairs — ici l'identité
+   KinLouaziss est volontairement claire, on refuse cet assombrissement. */
+export const viewport: Viewport = {
+  themeColor: "#1b6e8f",
+  colorScheme: "light",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

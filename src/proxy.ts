@@ -5,7 +5,17 @@ import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { updateSession } from "@/lib/supabase/proxy";
 
 /** Routes accessibles sans authentification. */
-const PUBLIC_ROUTES: string[] = ["/", "/installation", ROUTES.login];
+const PUBLIC_ROUTES: string[] = [
+  "/",
+  "/installation",
+  ROUTES.login,
+  /* Logo du cabinet et manifeste d'installation : ressources de marque
+     publiques, sans donnée patient (sinon un visiteur anonyme — donc un
+     téléphone qui ouvre l'écran de connexion — est redirigé vers la page
+     de connexion et l'image/le manifeste casse). */
+  "/logo",
+  "/manifest.json",
+];
 
 function isPublic(pathname: string): boolean {
   return PUBLIC_ROUTES.some(
