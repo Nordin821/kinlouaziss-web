@@ -35,7 +35,7 @@ export function AppShell({
   const items = navMetaForRole(role);
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex min-h-dvh bg-background">
       {/* Barre latérale fixe (bureau) */}
       <aside
         className={cn(
@@ -87,7 +87,10 @@ export function AppShell({
           onOpenMobileMenu={() => setMobileOpen(true)}
           onLogout={onLogout}
         />
-        <main className="flex-1 p-4 lg:p-6">{children}</main>
+        {/* Sur iPhone, la marge inférieure dépasse la barre du navigateur. */}
+        <main className="flex-1 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] lg:p-6">
+          {children}
+        </main>
       </div>
     </div>
   );

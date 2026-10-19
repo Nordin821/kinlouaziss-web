@@ -21,7 +21,7 @@ export default async function LoginPage({
   const next = typeof params.suivant === "string" ? params.suivant : undefined;
 
   return (
-    <div className="grid min-h-screen lg:grid-cols-2">
+    <div className="grid min-h-dvh lg:grid-cols-2">
       {/* Colonne de présentation */}
       <div className="relative hidden flex-col justify-between bg-primary p-10 text-white lg:flex">
         <div className="flex items-center gap-3">

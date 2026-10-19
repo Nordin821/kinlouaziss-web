@@ -39,7 +39,7 @@ export function Header({
         <Menu className="size-5" />
       </button>
 
-      <h2 className="text-lg font-semibold tracking-tight">
+      <h2 className="min-w-0 truncate text-lg font-semibold tracking-tight">
         {sectionTitle(pathname)}
       </h2>
 

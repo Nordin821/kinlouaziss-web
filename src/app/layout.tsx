@@ -17,6 +17,13 @@ export const metadata: Metadata = {
     template: `%s · ${APP_NAME}`,
   },
   description: APP_TAGLINE,
+  /* « Ajouter à l'écran d'accueil » sur iPhone : l'application s'ouvre alors
+     en plein écran, sans la barre du navigateur. */
+  appleWebApp: {
+    capable: true,
+    title: APP_NAME,
+    statusBarStyle: "default",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

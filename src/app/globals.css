@@ -90,6 +90,14 @@
     border-color: var(--border);
   }
 
+  /* Un élément de grille conserve « min-width: auto » : un libellé non coupé
+     (bouton, date…) peut alors élargir toute la page au-delà de l'écran du
+     téléphone. On autorise la réduction ; les utilitaires `min-w-*` gardent
+     la priorité sur cette règle de base. */
+  .grid > * {
+    min-width: 0;
+  }
+
   html,
   body {
     height: 100%;
@@ -152,6 +160,21 @@ tbody a:not([class*="hover:"]):hover {
 
   .print-break {
     break-inside: avoid;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Adaptation au téléphone.
+   Safari (iOS) zoome automatiquement sur un champ dont la police fait moins de
+   16 px au moment du focus : on force 16 px sous le point de rupture `sm`
+   (640 px). La règle est volontairement hors `@layer` pour l'emporter sur les
+   utilitaires `text-sm` des champs.
+   -------------------------------------------------------------------------- */
+@media (max-width: 639px) {
+  input:not([type="checkbox"]):not([type="radio"]),
+  select,
+  textarea {
+    font-size: 16px;
   }
 }
 
